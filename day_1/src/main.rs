@@ -2,6 +2,7 @@ use std::{
     fs::File,
     io::{prelude::*, BufReader},
     path::Path,
+    vec::Vec,
 };
 
 fn lines_from_file(filename: impl AsRef<Path>) -> Vec<i32> {
@@ -16,8 +17,7 @@ fn main() {
     let cal_in = lines_from_file("./day_1.in");
     let mut cal_per_elf: Vec<i32> = Vec::new();
     let mut cal_current: i32 = 0;
-    let mut cal_highest: &i32 = &0;
-    let mut elf_highest: usize = 0;
+    let mut cal_top_three: i32 = 0;
 
     for cal in cal_in {
         if cal > 0 {
@@ -33,15 +33,14 @@ fn main() {
         println!("Elf {}, calories {}", _i, elf);
     }
 
-    for (_i, cal_elf_current) in cal_per_elf.iter().enumerate() {
-        if cal_elf_current > &cal_highest {
-            cal_highest = cal_elf_current;
-            elf_highest = _i;
-        }
-    }
+    cal_per_elf.sort();
+    cal_per_elf.reverse();
 
-    println!(
-        "* Elf {} is carrying the most cal: {}",
-        elf_highest, cal_highest
-    )
+    print!("***\n");
+
+    for _i in 0..3 {
+        println!("{}. {}", _i + 1, cal_per_elf[_i]);
+        cal_top_three = cal_top_three + cal_per_elf[_i];
+    }
+    println!("Top 3 total: {}", cal_top_three);
 }

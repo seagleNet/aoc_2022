@@ -14,47 +14,34 @@ fn lines_from_file(filename: impl AsRef<Path>) -> Vec<String> {
         .collect()
 }
 
-fn referee(play: String) -> i32 {
-    let picks: Vec<&str> = play.split_whitespace().collect();
-    let elf_pick: &str = picks[0];
-    let player_pick: &str = picks[1];
+fn referee(elf_pick: &str, player_pick: &str) -> i32 {
     let mut points: i32 = 0;
 
-    if player_pick == "X" {
+    if player_pick == "P_ROCK" {
         points += 1;
         match elf_pick {
             "A" => points += 3, // d
             "B" => points += 0, // l
             "C" => points += 6, // w
-            &_ => {
-                eprintln!("Invalid elf pick!");
-                exit(1);
-            }
+            &_ => exit(1),
         }
-    } else if player_pick == "Y" {
+    } else if player_pick == "P_PAPER" {
         points += 2;
         match elf_pick {
             "A" => points += 6, // w
             "B" => points += 3, // d
             "C" => points += 0, // l
-            &_ => {
-                eprintln!("Invalid elf pick!");
-                exit(1);
-            }
+            &_ => exit(1),
         }
-    } else if player_pick == "Z" {
+    } else if player_pick == "P_SCISSORS" {
         points += 3;
         match elf_pick {
             "A" => points += 0, // l
             "B" => points += 6, // w
             "C" => points += 3, // d
-            &_ => {
-                eprintln!("Invalid elf pick!");
-                exit(1);
-            }
+            &_ => exit(1),
         }
     } else {
-        eprintln!("Invalid player pick!");
         exit(1);
     }
     return points;
@@ -65,7 +52,16 @@ fn main() {
     let mut player_score: i32 = 0;
 
     for play in strategies {
-        player_score += referee(play);
+        let picks: Vec<&str> = play.split_whitespace().collect();
+        let elf_pick: &str = picks[0];
+        let player_pick: &str = match picks[1] {
+            "X" => "P_ROCK",
+            "Y" => "P_PAPER",
+            "Z" => "P_SCISSORS",
+            _ => picks[1],
+        };
+
+        player_score += referee(elf_pick, player_pick);
     }
 
     println!("Player points: {}", player_score)

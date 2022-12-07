@@ -36,7 +36,7 @@ fn main() {
     cal_per_elf.sort();
     cal_per_elf.reverse();
 
-    print!("***\n");
+    println!("***");
 
     for _i in 0..3 {
         println!("{}. {}", _i + 1, cal_per_elf[_i]);

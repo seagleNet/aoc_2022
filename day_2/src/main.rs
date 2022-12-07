@@ -3,7 +3,6 @@ use std::{
     io::{prelude::*, BufReader},
     path::Path,
     process::exit,
-    vec::Vec,
 };
 
 fn lines_from_file(filename: impl AsRef<Path>) -> Vec<String> {
@@ -17,7 +16,7 @@ fn lines_from_file(filename: impl AsRef<Path>) -> Vec<String> {
 fn referee(elf_pick: &str, player_pick: &str) -> i32 {
     let mut points: i32 = 0;
 
-    if player_pick == "P_ROCK" {
+    if player_pick == "P_A" {
         points += 1;
         match elf_pick {
             "A" => points += 3, // d
@@ -25,7 +24,7 @@ fn referee(elf_pick: &str, player_pick: &str) -> i32 {
             "C" => points += 6, // w
             &_ => exit(1),
         }
-    } else if player_pick == "P_PAPER" {
+    } else if player_pick == "P_B" {
         points += 2;
         match elf_pick {
             "A" => points += 6, // w
@@ -33,7 +32,7 @@ fn referee(elf_pick: &str, player_pick: &str) -> i32 {
             "C" => points += 0, // l
             &_ => exit(1),
         }
-    } else if player_pick == "P_SCISSORS" {
+    } else if player_pick == "P_C" {
         points += 3;
         match elf_pick {
             "A" => points += 0, // l
@@ -55,9 +54,9 @@ fn main() {
         let picks: Vec<&str> = play.split_whitespace().collect();
         let elf_pick: &str = picks[0];
         let player_pick: &str = match picks[1] {
-            "X" => "P_ROCK",
-            "Y" => "P_PAPER",
-            "Z" => "P_SCISSORS",
+            "X" => "P_A",
+            "Y" => "P_B",
+            "Z" => "P_C",
             _ => picks[1],
         };
 

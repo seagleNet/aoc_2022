@@ -1,5 +1,5 @@
-use std::process::exit;
 use file_utils::lines_from_file;
+use std::process::exit;
 
 fn referee(elf_pick: &str, player_pick: &str) -> i32 {
     let mut points: i32 = 0;
@@ -38,21 +38,24 @@ fn decide_pick<'a>(elf_pick: &str, player_strategy: &str) -> &'a str {
     let player_pick: &'a str;
 
     if player_strategy == "X" {
-        match elf_pick { // loose
+        match elf_pick {
+            // loose
             "A" => player_pick = "P_C",
             "B" => player_pick = "P_A",
             "C" => player_pick = "P_B",
             &_ => exit(1),
         }
     } else if player_strategy == "Y" {
-        match elf_pick { // draw
+        match elf_pick {
+            // draw
             "A" => player_pick = "P_A",
             "B" => player_pick = "P_B",
             "C" => player_pick = "P_C",
             &_ => exit(1),
         }
     } else if player_strategy == "Z" {
-        match elf_pick { // win
+        match elf_pick {
+            // win
             "A" => player_pick = "P_B",
             "B" => player_pick = "P_C",
             "C" => player_pick = "P_A",
@@ -77,7 +80,7 @@ fn main() {
             "Z" => "P_C",
             _ => picks[1],
         };
-        player_score+= referee(elf_pick, player_pick);
+        player_score += referee(elf_pick, player_pick);
     }
 
     println!("Player score pt1: {}", player_score);

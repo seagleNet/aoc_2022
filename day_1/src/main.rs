@@ -1,17 +1,4 @@
-use std::{
-    fs::File,
-    io::{prelude::*, BufReader},
-    path::Path,
-    vec::Vec,
-};
-
-fn lines_from_file(filename: impl AsRef<Path>) -> Vec<i32> {
-    let file = File::open(filename).expect("no such file");
-    let buf = BufReader::new(file);
-    buf.lines()
-        .map(|l| l.unwrap_or_default().parse::<i32>().unwrap_or_default())
-        .collect()
-}
+use file_utils::lines_from_file;
 
 fn main() {
     let cal_in = lines_from_file("./day_1/day_1.in");
@@ -20,8 +7,8 @@ fn main() {
     let mut cal_top_three: i32 = 0;
 
     for cal in cal_in {
-        if cal > 0 {
-            cal_current = cal_current + cal;
+        if !cal.is_empty() {
+            cal_current += cal.parse::<i32>().unwrap();
         } else {
             cal_per_elf.push(cal_current);
             cal_current = 0;
@@ -40,7 +27,7 @@ fn main() {
 
     for _i in 0..3 {
         println!("{}. {}", _i + 1, cal_per_elf[_i]);
-        cal_top_three = cal_top_three + cal_per_elf[_i];
+        cal_top_three += cal_per_elf[_i];
     }
     println!("Top 3 total: {}", cal_top_three);
 }

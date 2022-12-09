@@ -1,17 +1,5 @@
-use std::{
-    fs::File,
-    io::{prelude::*, BufReader},
-    path::Path,
-    process::exit,
-};
-
-fn lines_from_file(filename: impl AsRef<Path>) -> Vec<String> {
-    let file = File::open(filename).expect("no such file");
-    let buf = BufReader::new(file);
-    buf.lines()
-        .map(|l| l.expect("could not read line"))
-        .collect()
-}
+use std::process::exit;
+use file_utils::lines_from_file;
 
 fn referee(elf_pick: &str, player_pick: &str) -> i32 {
     let mut points: i32 = 0;

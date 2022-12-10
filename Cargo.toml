@@ -12,7 +12,9 @@ members = [
     "file_utils",
     "day_1",
     "day_2",
-    "day_2",
+    "day_3",
 ]
 
-default = "day_3"
+default-members = [
+    "day_3"
+]

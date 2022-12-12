@@ -98,6 +98,6 @@ mod tests {
     #[test]
     fn test_return_duplicates() {
         let result = return_duplicates("vJrwpWtwJgWr", "hcsFMMfFFhFp");
-        assert_eq!(vec![])
+        assert_eq!("p", result);
     }
 }

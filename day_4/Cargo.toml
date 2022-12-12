@@ -1,21 +1,9 @@
 [package]
-name = "aoc_2022"
+name = "day_4"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-
-[workspace]
-members = [
-    "file_utils",
-    "day_1",
-    "day_2",
-    "day_3",
-    "day_4",
-]
-
-default-members = [
-    "day_4"
-]
+file_utils = { path = "../file_utils" }

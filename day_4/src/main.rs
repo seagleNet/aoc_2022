@@ -26,15 +26,36 @@ fn compare_ranges(left: Vec<i32>, right: Vec<i32>) -> i32 {
     }
 }
 
+fn compare_ranges_pt2(left: Vec<i32>, right: Vec<i32>) -> i32 {
+    let range_l = *left.iter().min().unwrap()..=*left.iter().max().unwrap();
+    let range_r = *right.iter().min().unwrap()..=*right.iter().max().unwrap();
+
+    if range_l.contains(&right[0]) || range_l.contains(&right[1]) {
+        return 1;
+    } else if range_r.contains(&left[0]) || range_r.contains(&left[1]) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
 fn main() {
     let pairs = lines_from_file("./day_4/day_4.in");
 
     let result = pairs
+        .clone()
         .iter()
         .map(|pair| get_pair_ranges(pair))
         .map(|ranges| compare_ranges(ranges.0, ranges.1))
         .sum::<i32>();
     println!("Total fully contained: {}", result);
+
+    let result_pt2 = pairs
+        .iter()
+        .map(|pair| get_pair_ranges(pair))
+        .map(|ranges| compare_ranges_pt2(ranges.0, ranges.1))
+        .sum::<i32>();
+    println!("Total overlapped: {}", result_pt2);
 }
 
 #[cfg(test)]

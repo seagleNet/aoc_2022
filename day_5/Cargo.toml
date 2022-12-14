@@ -7,3 +7,5 @@ edition = "2021"
 
 [dependencies]
 file_utils = { path = "../file_utils" }
+regex = "1"
+lazy_static = "1.4.0"

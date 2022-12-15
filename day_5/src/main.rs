@@ -2,45 +2,43 @@ use file_utils::lines_from_file;
 use lazy_static::lazy_static;
 use regex::Regex;
 
-fn get_crates<'a>(line: &'a String) -> regex::Captures<'a> {
+fn parse_single_line(line: &str, stacks: &mut Vec<Vec<char>>) {
+    let mut input = line.to_string();
     lazy_static! {
-        static ref RE: Regex = Regex::new(r"(?:( {3}|\[[A-Z]\]) ?)+").unwrap();
+        static ref RE: Regex = Regex::new(r"(\[[A-Z]\]|   )").unwrap();
     }
-    RE.captures(&line).unwrap()
-}
 
-fn get_init_state(lines: Vec<String>) -> Vec<String> {
-    let mut input: Vec<String> = Vec::new();
-    let mut i: usize = 0;
-
-    while lines.iter().len() != 0 {
-        let test = get_crates(lines.first().unwrap());
-        println!("{:?}", test);
-        input.push(String::new());
-        let caps = lines
-            .iter()
-            .map(|line| get_crates(line))
-            .map(|caps| caps.get(0))
-            .map(|caps| caps.unwrap().as_str().parse::<char>().unwrap());
-
-        for cap in caps {
-            input[i].push(cap);
+    let mut group_index = 0;
+    while let Some(captures) = RE.captures(&input.as_str()) {
+        if let Some(m) = captures.get(1) {
+            if stacks.get(group_index).is_none() {
+                stacks.push(vec![]);
+            }
+            println!("{} group is '{}'", group_index, m.as_str());
+            let char = m.as_str().chars().nth(1).unwrap();
+            if char.is_alphabetic() {
+                stacks[group_index].push(char);
+            }
+            input.replace_range(m.range(), "");
         }
-        i += 1;
+        group_index += 1;
     }
-    return input
 }
 
 fn main() {
     let lines = lines_from_file("./day_5/day_5.in");
-    get_init_state(lines);
+    let mut stacks: Vec<Vec<char>> = vec![];
+
+    for line in lines.iter() {
+        parse_single_line(line, &mut stacks);
+    }
+
+    println!("parsed vecs: {:?}", stacks);
 }
 
 #[cfg(test)]
 mod tests {
-    use std::vec;
-
-    use crate::get_init_state;
+    use super::*;
 
     #[test]
     fn test_init_state() {
@@ -53,29 +51,12 @@ mod tests {
             "move 1 from 2 to 1".to_string(),
             "move 3 from 1 to 3".to_string(),
         ];
+        let mut stacks: Vec<Vec<char>> = vec![];
 
-        let init_state = get_init_state(lines);
+        for line in lines.iter() {
+            parse_single_line(line, &mut stacks);
+        }
 
-        println!("{:?}", init_state);
-    }
-
-    #[test]
-    fn test_string() {
-        let mut test = String::new();
-
-        test.push('a');
-        test.push('b');
-        test.push('c');
-        assert_eq!("abc", test);
-
-        let mut test_vec: Vec<String> = Vec::new();
-
-        test_vec.push(String::new());
-        test_vec[0].push('a');
-        test_vec[0].push('b');
-        test_vec.push(String::new());
-        test_vec[1].push('x');
-        test_vec[1].push('y');
-        assert_eq!(vec!["ab", "xy"], test_vec);
+        println!("{:?}", stacks);
     }
 }

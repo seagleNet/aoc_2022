@@ -26,36 +26,56 @@ fn parse_init_state(line: &str, stacks: &mut Vec<VecDeque<char>>) {
     }
 }
 
-fn parse_instruction(line: &str) -> Vec<i32> {
+fn parse_instruction(line: &str, instructions: &mut Vec<Vec<i32>>) {
     let input = line.to_string();
-    let mut result: Vec<i32> = Vec::new();
     lazy_static! {
         static ref RE: Regex = Regex::new(r"^move (\d+) from (\d+) to (\d+)$").unwrap();
     }
 
     if let Some(captures) = RE.captures(&input.as_str()) {
-        if let Some(m) = captures.get(1) {
-            result.push(m.as_str().parse::<i32>().unwrap());
-        }
-        if let Some(m) = captures.get(2) {
-            result.push(m.as_str().parse::<i32>().unwrap());
-        }
-        if let Some(m) = captures.get(3) {
-            result.push(m.as_str().parse::<i32>().unwrap());
+        let index = instructions.len();
+        instructions.push(Vec::new());
+        for i in 1..=3 {
+            if let Some(m) = captures.get(i) {
+                let int = m.as_str().parse::<i32>().unwrap();
+                if int.is_positive() {
+                    instructions[index].push(int);
+                }
+            }
         }
     }
-    result
+}
+
+fn exec_instruction(instruction: Vec<i32>, stacks: &mut Vec<VecDeque<char>>) {
+    let mv_count: usize = instruction[0].try_into().unwrap();
+    let src: usize = instruction[1].try_into().map(|src: usize | src -1 ).unwrap();
+    let dst: usize = instruction[2].try_into().map(|src: usize | src -1 ).unwrap();
+
+    for _ in 0..mv_count {
+        let transport: char = stacks[src].pop_back().unwrap();
+        stacks[dst].push_back(transport);
+    }
 }
 
 fn main() {
     let lines = lines_from_file("./day_5/day_5.in");
     let mut stacks: Vec<VecDeque<char>> = Vec::new();
+    let mut instructions: Vec<Vec<i32>> = Vec::new();
+    let mut top_crates: String = String::new();
 
     for line in lines.iter() {
         parse_init_state(line, &mut stacks);
+        parse_instruction(line, &mut instructions);
     }
 
-    println!("{:?}", stacks);
+    for instruction in instructions {
+        exec_instruction(instruction, &mut stacks);
+    }
+
+    for stack in stacks {
+        top_crates.push(stack[stack.len() - 1]);
+    }
+    println!("{:?}", top_crates);
 }
 
 #[cfg(test)]
@@ -71,14 +91,13 @@ mod tests {
             " 1   2   3 ".to_string(),
             "".to_string(),
             "move 1 from 2 to 1".to_string(),
-            "move 3 from 1 to 3".to_string(),
+            "move 3 from 2 to 3".to_string(),
         ];
         let mut stacks: Vec<VecDeque<char>> = Vec::new();
 
         for line in lines.iter() {
             parse_init_state(line, &mut stacks);
         }
-
         println!("{:?}", stacks);
     }
 
@@ -93,9 +112,11 @@ mod tests {
             "move 1 from 2 to 1".to_string(),
             "move 3 from 1 to 3".to_string(),
         ];
+        let mut instructions: Vec<Vec<i32>> = Vec::new();
 
         for line in lines.iter() {
-            println!("{:?}", parse_instruction(line));
+            parse_instruction(line, &mut instructions);
         }
+        println!("{:?}", instructions);
     }
 }

@@ -15,7 +15,6 @@ fn parse_init_state(line: &str, stacks: &mut Vec<VecDeque<char>>) {
             if stacks.get(group_index).is_none() {
                 stacks.push(VecDeque::new());
             }
-            // println!("{} group is '{}'", group_index, m.as_str());
             let char = m.as_str().chars().nth(1).unwrap();
             if char.is_alphabetic() {
                 stacks[group_index].push_front(char);
@@ -57,8 +56,44 @@ fn exec_instruction(instruction: Vec<i32>, stacks: &mut Vec<VecDeque<char>>) {
     }
 }
 
-fn main() {
-    let lines = lines_from_file("./day_5/day_5.in");
+fn exec_instruction_pt2(instruction: Vec<i32>, stacks: &mut Vec<VecDeque<char>>) {
+    let mv_count: usize = instruction[0].try_into().unwrap();
+    let src: usize = instruction[1].try_into().map(|src: usize | src -1 ).unwrap();
+    let dst: usize = instruction[2].try_into().map(|src: usize | src -1 ).unwrap();
+    let mut transport: Vec<char> = Vec::new();
+
+    for _ in 0..mv_count {
+        let load: char = stacks[src].pop_back().unwrap();
+        transport.push(load);
+    }
+    while !transport.is_empty() {
+        let unload = transport.pop().unwrap();
+        stacks[dst].push_back(unload);
+    }
+}
+
+fn pt1(lines: Vec<String>) -> String {
+    let mut stacks: Vec<VecDeque<char>> = Vec::new();
+    let mut instructions: Vec<Vec<i32>> = Vec::new();
+    let mut top_crates: String = String::new();
+
+    for line in lines.iter() {
+        parse_init_state(line, &mut stacks);
+        parse_instruction(line, &mut instructions);
+    }
+
+    for instruction in instructions.clone() {
+        exec_instruction(instruction, &mut stacks);
+    }
+
+    for stack in stacks {
+        top_crates.push(stack[stack.len() - 1]);
+    }
+
+    top_crates
+}
+
+fn pt2(lines: Vec<String>) -> String {
     let mut stacks: Vec<VecDeque<char>> = Vec::new();
     let mut instructions: Vec<Vec<i32>> = Vec::new();
     let mut top_crates: String = String::new();
@@ -69,13 +104,22 @@ fn main() {
     }
 
     for instruction in instructions {
-        exec_instruction(instruction, &mut stacks);
+        exec_instruction_pt2(instruction, &mut stacks);
     }
 
     for stack in stacks {
         top_crates.push(stack[stack.len() - 1]);
     }
-    println!("{:?}", top_crates);
+
+    top_crates
+}
+
+fn main() {
+    let lines = lines_from_file("./day_5/day_5.in");
+
+    println!("result pt1: {}", pt1(lines.clone()));
+
+    println!("result pt1: {}", pt2(lines));
 }
 
 #[cfg(test)]

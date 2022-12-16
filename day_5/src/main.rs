@@ -1,13 +1,12 @@
 use file_utils::lines_from_file;
 use lazy_static::lazy_static;
 use regex::Regex;
-use core::panic;
 use std::collections::VecDeque;
 
 fn parse_init_state(line: &str, stacks: &mut Vec<VecDeque<char>>) {
     let mut input = line.to_string();
     lazy_static! {
-        static ref RE: Regex = Regex::new(r"(\[[A-Z]\]|   )").unwrap();
+        static ref RE: Regex = Regex::new(r"(\[[A-Z]\] ?| {4})").unwrap();
     }
 
     let mut group_index = 0;
@@ -16,7 +15,7 @@ fn parse_init_state(line: &str, stacks: &mut Vec<VecDeque<char>>) {
             if stacks.get(group_index).is_none() {
                 stacks.push(VecDeque::new());
             }
-            println!("{} group is '{}'", group_index, m.as_str());
+            // println!("{} group is '{}'", group_index, m.as_str());
             let char = m.as_str().chars().nth(1).unwrap();
             if char.is_alphabetic() {
                 stacks[group_index].push_front(char);
@@ -27,8 +26,25 @@ fn parse_init_state(line: &str, stacks: &mut Vec<VecDeque<char>>) {
     }
 }
 
-fn parse_instruction() {
-    panic!();
+fn parse_instruction(line: &str) -> Vec<i32> {
+    let input = line.to_string();
+    let mut result: Vec<i32> = Vec::new();
+    lazy_static! {
+        static ref RE: Regex = Regex::new(r"^move (\d+) from (\d+) to (\d+)$").unwrap();
+    }
+
+    if let Some(captures) = RE.captures(&input.as_str()) {
+        if let Some(m) = captures.get(1) {
+            result.push(m.as_str().parse::<i32>().unwrap());
+        }
+        if let Some(m) = captures.get(2) {
+            result.push(m.as_str().parse::<i32>().unwrap());
+        }
+        if let Some(m) = captures.get(3) {
+            result.push(m.as_str().parse::<i32>().unwrap());
+        }
+    }
+    result
 }
 
 fn main() {
@@ -67,7 +83,7 @@ mod tests {
     }
 
     #[test]
-    fn test_get_movement() {
+    fn test_parse_instruction() {
         let lines: Vec<String> = vec![
             "    [D]    ".to_string(),
             "[N] [C]    ".to_string(),
@@ -77,5 +93,9 @@ mod tests {
             "move 1 from 2 to 1".to_string(),
             "move 3 from 1 to 3".to_string(),
         ];
+
+        for line in lines.iter() {
+            println!("{:?}", parse_instruction(line));
+        }
     }
 }

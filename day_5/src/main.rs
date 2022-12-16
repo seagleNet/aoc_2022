@@ -46,24 +46,24 @@ fn parse_instruction(line: &str, instructions: &mut Vec<Vec<i32>>) {
 }
 
 fn exec_instruction(instruction: Vec<i32>, stacks: &mut Vec<VecDeque<char>>) {
-    let mv_count: usize = instruction[0].try_into().unwrap();
-    let src: usize = instruction[1].try_into().map(|src: usize | src -1 ).unwrap();
-    let dst: usize = instruction[2].try_into().map(|src: usize | src -1 ).unwrap();
+    let mv_count = instruction[0].try_into().unwrap();
+    let src = instruction[1].try_into().map(|src: usize | src -1 ).unwrap();
+    let dst = instruction[2].try_into().map(|src: usize | src -1 ).unwrap();
 
     for _ in 0..mv_count {
-        let transport: char = stacks[src].pop_back().unwrap();
+        let transport = stacks[src].pop_back().unwrap();
         stacks[dst].push_back(transport);
     }
 }
 
 fn exec_instruction_pt2(instruction: Vec<i32>, stacks: &mut Vec<VecDeque<char>>) {
-    let mv_count: usize = instruction[0].try_into().unwrap();
-    let src: usize = instruction[1].try_into().map(|src: usize | src -1 ).unwrap();
-    let dst: usize = instruction[2].try_into().map(|src: usize | src -1 ).unwrap();
+    let mv_count = instruction[0].try_into().unwrap();
+    let src = instruction[1].try_into().map(|src: usize | src -1 ).unwrap();
+    let dst = instruction[2].try_into().map(|src: usize | src -1 ).unwrap();
     let mut transport: Vec<char> = Vec::new();
 
     for _ in 0..mv_count {
-        let load: char = stacks[src].pop_back().unwrap();
+        let load = stacks[src].pop_back().unwrap();
         transport.push(load);
     }
     while !transport.is_empty() {
@@ -75,7 +75,7 @@ fn exec_instruction_pt2(instruction: Vec<i32>, stacks: &mut Vec<VecDeque<char>>)
 fn pt1(lines: Vec<String>) -> String {
     let mut stacks: Vec<VecDeque<char>> = Vec::new();
     let mut instructions: Vec<Vec<i32>> = Vec::new();
-    let mut top_crates: String = String::new();
+    let mut top_crates = String::new();
 
     for line in lines.iter() {
         parse_init_state(line, &mut stacks);
@@ -96,7 +96,7 @@ fn pt1(lines: Vec<String>) -> String {
 fn pt2(lines: Vec<String>) -> String {
     let mut stacks: Vec<VecDeque<char>> = Vec::new();
     let mut instructions: Vec<Vec<i32>> = Vec::new();
-    let mut top_crates: String = String::new();
+    let mut top_crates = String::new();
 
     for line in lines.iter() {
         parse_init_state(line, &mut stacks);
@@ -119,7 +119,7 @@ fn main() {
 
     println!("result pt1: {}", pt1(lines.clone()));
 
-    println!("result pt1: {}", pt2(lines));
+    println!("result pt2: {}", pt2(lines));
 }
 
 #[cfg(test)]

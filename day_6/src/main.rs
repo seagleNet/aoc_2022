@@ -63,7 +63,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_init_state() {
+    fn test_maker_position() {
         let lines: Vec<String> = vec![
             "bvwbjplbgvbhsrlpgdmjqwftvncz".to_string(),
             "nppdvjthqldpwncqszvftbrmjlhg".to_string(),
@@ -74,7 +74,7 @@ mod tests {
 
         for line in lines {
             let mut input = line.chars().collect::<VecDeque<char>>();
-            marker_position += get_marker_position(&mut input);
+            marker_position += get_marker_position(&mut input, 4);
         }
 
         println!("{:?}", marker_position);

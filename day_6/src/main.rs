@@ -12,11 +12,11 @@ where
     iter.into_iter().all(move |x| uniq.insert(x))
 }
 
-fn get_marker_position(input: &mut VecDeque<char>) -> i32 {
-    let mut marker_position = 4;
+fn get_marker_position(input: &mut VecDeque<char>, buffer_size: i32) -> i32 {
+    let mut marker_position = buffer_size;
     let mut segment: VecDeque<char> = VecDeque::new();
 
-    for _ in 0..4 {
+    for _ in 0..buffer_size {
         segment.push_back(input.pop_front().unwrap());
     }
     for _ in input.clone() {
@@ -36,7 +36,17 @@ fn pt1(lines: Vec<String>) -> i32 {
 
     for line in lines {
         let mut input = line.chars().collect::<VecDeque<char>>();
-        marker_position += get_marker_position(&mut input);
+        marker_position += get_marker_position(&mut input, 4);
+    }
+    marker_position
+}
+
+fn pt2(lines: Vec<String>) -> i32 {
+    let mut marker_position: i32 = 0;
+
+    for line in lines {
+        let mut input = line.chars().collect::<VecDeque<char>>();
+        marker_position += get_marker_position(&mut input, 14);
     }
     marker_position
 }
@@ -45,6 +55,7 @@ fn main() {
     let lines = lines_from_file("./day_6/day_6.in");
 
     println!("result pt1: {}", pt1(lines.clone()));
+    println!("result pt2: {}", pt2(lines.clone()));
 }
 
 #[cfg(test)]

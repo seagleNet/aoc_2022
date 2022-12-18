@@ -60,6 +60,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "day_7"
+version = "0.1.0"
+dependencies = [
+ "file_utils",
+ "lazy_static",
+ "regex",
+]
+
+[[package]]
 name = "file_utils"
 version = "0.1.0"
 

@@ -16,8 +16,9 @@ members = [
     "day_4",
     "day_5",
     "day_6",
+    "day_7",
 ]
 
 default-members = [
-    "day_6"
+    "day_7"
 ]

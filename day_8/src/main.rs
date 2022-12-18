@@ -1,5 +1,5 @@
 use file_utils::lines_from_file;
-use std::{collections::{HashMap, VecDeque}, hash::Hash};
+use std::collections::{HashMap, VecDeque};
 
 fn parse_cols(lines: &Vec<String>) -> Vec<String> {
     let mut cols: Vec<String> = Vec::new();
@@ -56,7 +56,7 @@ fn parse_trees_in_line(line: String) -> HashMap<i32, i32> {
     let mut pos = last_pos - 1;
     let mut highest = last_tree;
     let mut trees_back = trees.clone();
-    while trees_back.len() != 0  {
+    while trees_back.len() != 0 {
         let tree = trees_back.pop_back().unwrap();
         if tree > highest {
             result.insert(pos, tree);

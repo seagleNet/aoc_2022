@@ -82,12 +82,8 @@ fn parse_input(lines: Vec<String>) -> HashMap<String, i32> {
     directories
 }
 
-fn pt1(lines: Vec<String>) -> i32 {
-    let directories = parse_input(lines);
+fn get_recursive_sizes(directories: HashMap<String, i32>) -> HashMap<String, i32> {
     let mut recursive_sizes: HashMap<String, i32> = HashMap::new();
-    let mut total_size = 0;
-
-    println!("{:?}", directories);
 
     for dir in &directories {
         let mut r_size = 0;
@@ -98,8 +94,14 @@ fn pt1(lines: Vec<String>) -> i32 {
         }
         recursive_sizes.insert(dir.0.to_string(), r_size);
     }
+    recursive_sizes
+}
 
-    println!("{:?}", recursive_sizes);
+fn pt1(lines: Vec<String>) -> i32 {
+    let directories = parse_input(lines);
+    let recursive_sizes = get_recursive_sizes(directories);
+    let mut total_size = 0;
+
     for size in recursive_sizes {
         if size.1 <= 100000 {
             total_size += size.1;
@@ -108,10 +110,25 @@ fn pt1(lines: Vec<String>) -> i32 {
     total_size
 }
 
+fn pt2(lines: Vec<String>) -> i32 {
+    let directories = parse_input(lines);
+    let recursive_sizes = get_recursive_sizes(directories);
+    let disk_free = 70000000 - recursive_sizes.get("/").unwrap();
+    let mut del_selection: Vec<i32> = Vec::new();
+
+    for size in recursive_sizes {
+        if size.1 + disk_free >= 30000000 {
+            del_selection.push(size.1);
+        }
+    }
+    *del_selection.iter().min().unwrap()
+}
+
 fn main() {
     let lines = lines_from_file("./day_7/day_7.in");
 
     println!("result pt1: {}", pt1(lines.clone()));
+    println!("result pt2: {}", pt2(lines));
 }
 
 #[cfg(test)]

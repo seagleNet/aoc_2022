@@ -72,15 +72,28 @@ fn parse_trees_in_line(line: String) -> HashMap<i32, i32> {
 }
 
 fn pt1(lines: Vec<String>, cols: Vec<String>) -> i32 {
-    let mut tree_index: HashMap<(usize, usize), i32> = HashMap::new();
-    let mut line_index: usize = 0;
+    let mut tree_index: HashMap<Vec<i32>, i32> = HashMap::new();
 
+    let mut line_index: i32 = 0;
     for line in lines {
         let parsed_trees = parse_trees_in_line(line);
-        for tree in parsed_trees {}
+        for tree in parsed_trees {
+            tree_index.insert(vec![tree.0, line_index], tree.1);
+        }
         line_index += 1;
     }
-    panic!()
+
+    let mut col_index: i32 = 0;
+    for col in cols {
+        let parsed_trees = parse_trees_in_line(col);
+        for tree in parsed_trees {
+            tree_index.insert(vec![col_index, tree.0], tree.1);
+        }
+        col_index += 1;
+    }
+
+    println!("{:?}", tree_index);
+    tree_index.keys().len().try_into().unwrap()
 }
 
 fn main() {
@@ -103,14 +116,11 @@ mod tests {
             "33549".to_string(),
             "35390".to_string(),
         ];
-        let mut highest_trees: String = String::new();
+        let cols = parse_cols(&lines);
 
-        for line in lines {
-            let max = line.chars().into_iter().max().unwrap();
-            highest_trees.push(max);
-        }
-        println!("{:?}", highest_trees);
-        assert_eq!("75699", highest_trees);
+        let result = pt1(lines, cols);
+        println!("{:?}", result);
+        assert_eq!(21, result);
     }
 
     #[test]

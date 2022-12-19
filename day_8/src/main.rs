@@ -46,9 +46,9 @@ fn parse_trees_in_line(line: String) -> HashMap<i32, i32> {
         if tree > highest {
             result.insert(pos, tree);
             highest = tree;
-        } else if tree == *highest_overall {
-            result.insert(pos, tree);
-            break;
+            if tree == *highest_overall {
+                break;
+            }
         }
         pos += 1;
     }
@@ -61,9 +61,9 @@ fn parse_trees_in_line(line: String) -> HashMap<i32, i32> {
         if tree > highest {
             result.insert(pos, tree);
             highest = tree;
-        } else if tree == *highest_overall {
-            result.insert(pos, tree);
-            break;
+            if tree == *highest_overall {
+                break;
+            }
         }
         pos -= 1;
     }
@@ -72,13 +72,13 @@ fn parse_trees_in_line(line: String) -> HashMap<i32, i32> {
 }
 
 fn pt1(lines: Vec<String>, cols: Vec<String>) -> i32 {
-    let mut tree_index: HashMap<Vec<i32>, i32> = HashMap::new();
+    let mut tree_index: HashMap<(i32, i32), i32> = HashMap::new();
 
     let mut line_index: i32 = 0;
     for line in lines {
         let parsed_trees = parse_trees_in_line(line);
         for tree in parsed_trees {
-            tree_index.insert(vec![tree.0, line_index], tree.1);
+            tree_index.insert((tree.0, line_index), tree.1);
         }
         line_index += 1;
     }
@@ -87,7 +87,7 @@ fn pt1(lines: Vec<String>, cols: Vec<String>) -> i32 {
     for col in cols {
         let parsed_trees = parse_trees_in_line(col);
         for tree in parsed_trees {
-            tree_index.insert(vec![col_index, tree.0], tree.1);
+            tree_index.insert((col_index, tree.0), tree.1);
         }
         col_index += 1;
     }

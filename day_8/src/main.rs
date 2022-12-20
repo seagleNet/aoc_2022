@@ -92,7 +92,6 @@ fn pt1(lines: Vec<String>, cols: Vec<String>) -> i32 {
         col_index += 1;
     }
 
-    println!("{:?}", tree_index);
     tree_index.keys().len().try_into().unwrap()
 }
 

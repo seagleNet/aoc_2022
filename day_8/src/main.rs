@@ -27,7 +27,7 @@ fn to_digits(line: String) -> Vec<i32> {
     result
 }
 
-fn parse_trees_in_line(line: String) -> HashMap<i32, i32> {
+fn visible_trees_from_edges(line: String) -> HashMap<i32, i32> {
     let trees: VecDeque<i32> = VecDeque::from(to_digits(line));
     let highest_overall = trees.iter().max().unwrap();
     let last_pos: i32 = trees.len().try_into().unwrap();
@@ -76,8 +76,8 @@ fn pt1(lines: Vec<String>, cols: Vec<String>) -> i32 {
 
     let mut line_index: i32 = 0;
     for line in lines {
-        let parsed_trees = parse_trees_in_line(line);
-        for tree in parsed_trees {
+        let visible_trees = visible_trees_from_edges(line);
+        for tree in visible_trees {
             tree_index.insert((tree.0, line_index), tree.1);
         }
         line_index += 1;
@@ -85,8 +85,8 @@ fn pt1(lines: Vec<String>, cols: Vec<String>) -> i32 {
 
     let mut col_index: i32 = 0;
     for col in cols {
-        let parsed_trees = parse_trees_in_line(col);
-        for tree in parsed_trees {
+        let visible_trees = visible_trees_from_edges(col);
+        for tree in visible_trees {
             tree_index.insert((col_index, tree.0), tree.1);
         }
         col_index += 1;
@@ -145,8 +145,8 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_trees_in_line() {
-        println!("{:?}", parse_trees_in_line("30373".to_string()));
-        println!("{:?}", parse_trees_in_line("71349".to_string()));
+    fn test_visible_trees_from_edges() {
+        println!("{:?}", visible_trees_from_edges("30373".to_string()));
+        println!("{:?}", visible_trees_from_edges("71349".to_string()));
     }
 }

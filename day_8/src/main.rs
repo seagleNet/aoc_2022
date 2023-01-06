@@ -13,6 +13,7 @@ fn parse_cols(lines: &Vec<String>) -> Vec<String> {
             col_index += 1;
         }
     }
+
     cols
 }
 
@@ -24,6 +25,7 @@ fn to_digits(line: String) -> Vec<i32> {
             result.push(digit.try_into().unwrap());
         }
     }
+
     result
 }
 
@@ -71,6 +73,57 @@ fn visible_trees_from_edges(line: String) -> HashMap<i32, i32> {
     result
 }
 
+fn view_distances_per_tree(line: String) -> HashMap<i32, Vec<i32>> {
+    let trees: Vec<i32> = Vec::from(to_digits(line));
+    let last_pos = trees.len() - 1;
+    let mut result: HashMap<i32, Vec<i32>> = HashMap::new();
+
+    for pos in 0..=last_pos {
+        let tree = trees[pos];
+
+        let mut view_distance_front = 0;
+        if pos != 0 {
+            for pos_front in (0..pos).rev() {
+                if trees[pos_front] < tree {
+                    view_distance_front += 1;
+                } else {
+                    view_distance_front += 1;
+                    break;
+                }
+            }
+        }
+
+        let mut view_distance_back = 0;
+        if pos != last_pos {
+            for pos_back in pos + 1..=last_pos {
+                if trees[pos_back] < tree {
+                    view_distance_back += 1;
+                } else {
+                    view_distance_back += 1;
+                    break;
+                }
+            }
+        }
+
+        let view_distances = vec![view_distance_front, view_distance_back];
+
+        result.insert(pos.try_into().unwrap(), view_distances);
+    }
+
+    result
+}
+
+fn calc_scenic_score(input: Vec<i32>) -> i32 {
+    let mut score = 1;
+    for distance in input {
+        if distance > 0 {
+            score *= distance;
+        }
+    }
+
+    score
+}
+
 fn pt1(lines: Vec<String>, cols: Vec<String>) -> i32 {
     let mut tree_index: HashMap<(i32, i32), i32> = HashMap::new();
 
@@ -95,11 +148,46 @@ fn pt1(lines: Vec<String>, cols: Vec<String>) -> i32 {
     tree_index.keys().len().try_into().unwrap()
 }
 
+fn pt2(lines: Vec<String>, cols: Vec<String>) -> i32 {
+    let mut tree_index: HashMap<(i32, i32), Vec<i32>> = HashMap::new();
+    let mut scenic_scores: HashMap<(i32, i32), i32> = HashMap::new();
+
+    let mut line_index: i32 = 0;
+    for line in lines {
+        let trees = view_distances_per_tree(line);
+        for tree in trees {
+            tree_index.insert((tree.0, line_index), tree.1);
+        }
+        line_index += 1;
+    }
+
+    let mut col_index: i32 = 0;
+    for col in cols {
+        let trees = view_distances_per_tree(col);
+        for tree in trees {
+            for distance in tree.1 {
+                tree_index
+                    .entry((col_index, tree.0))
+                    .or_insert(vec![distance])
+                    .push(distance);
+            }
+        }
+        col_index += 1;
+    }
+
+    for tree in tree_index {
+        scenic_scores.insert(tree.0, calc_scenic_score(tree.1));
+    }
+
+    *scenic_scores.values().max().unwrap()
+}
+
 fn main() {
     let lines = lines_from_file("./day_8/day_8.in");
     let cols = parse_cols(&lines);
 
-    println!("result pt1: {}", pt1(lines, cols));
+    println!("result pt1: {}", pt1(lines.clone(), cols.clone()));
+    println!("result pt2: {}", pt2(lines, cols));
 }
 
 #[cfg(test)]
@@ -117,9 +205,12 @@ mod tests {
         ];
         let cols = parse_cols(&lines);
 
-        let result = pt1(lines, cols);
-        println!("{:?}", result);
-        assert_eq!(21, result);
+        let result_pt1 = pt1(lines.clone(), cols.clone());
+        println!("{:?}", result_pt1);
+        assert_eq!(21, result_pt1);
+
+        let result_pt2 = pt2(lines, cols);
+        println!("{:?}", result_pt2);
     }
 
     #[test]
@@ -148,5 +239,17 @@ mod tests {
     fn test_visible_trees_from_edges() {
         println!("{:?}", visible_trees_from_edges("30373".to_string()));
         println!("{:?}", visible_trees_from_edges("71349".to_string()));
+    }
+
+    #[test]
+    fn test_view_distances_per_tree() {
+        println!("{:?}", view_distances_per_tree("25512".to_string()));
+        println!("{:?}", view_distances_per_tree("35353".to_string()));
+    }
+
+    #[test]
+    fn test_calc_scenic_score() {
+        assert_eq!(4, calc_scenic_score(vec![1, 2, 1, 2]));
+        assert_eq!(8, calc_scenic_score(vec![2, 2, 2, 1]));
     }
 }

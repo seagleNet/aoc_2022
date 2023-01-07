@@ -63,12 +63,14 @@ fn move_tail(head_position: (i32, i32), tail_position: (i32, i32)) -> (i32, i32)
     }
 }
 
-fn pt1(lines: Vec<String>) -> i32 {
-    let mut head_position = (0, 0);
-    let mut tail_position = (0, 0);
+fn pt1_pt2(lines: Vec<String>, nr_of_knots: i32) -> i32 {
+    let mut knot_positions: Vec<(i32, i32)> = Vec::new();
     let mut tail_position_log: HashMap<(i32, i32), i32> = HashMap::new();
 
-    tail_position_log.insert(tail_position, 1);
+    for _ in 0..nr_of_knots {
+        knot_positions.push((0, 0))
+    }
+    tail_position_log.insert((0, 0), 1);
 
     for line in lines {
         let instruction = parse_instructions(line);
@@ -76,13 +78,20 @@ fn pt1(lines: Vec<String>) -> i32 {
         let mv_count = instruction.1;
 
         for _ in 0..mv_count {
-            head_position = move_head(head_position, mv_direction);
-            if !adjacency(head_position, tail_position) {
-                tail_position = move_tail(head_position, tail_position);
-                tail_position_log
-                    .entry(tail_position)
-                    .and_modify(|count| *count += 1)
-                    .or_insert(1);
+            knot_positions[0] = move_head(knot_positions[0], mv_direction);
+            for pos in 1..knot_positions.len() {
+                let head_position = knot_positions[pos - 1];
+                let tail_position = knot_positions[pos];
+
+                if !adjacency(head_position, tail_position) {
+                    knot_positions[pos] = move_tail(head_position, tail_position);
+                    if pos == nr_of_knots as usize - 1 {
+                        tail_position_log
+                            .entry(knot_positions[pos])
+                            .and_modify(|count| *count += 1)
+                            .or_insert(1);
+                    }
+                }
             }
         }
     }
@@ -93,7 +102,8 @@ fn pt1(lines: Vec<String>) -> i32 {
 fn main() {
     let lines = lines_from_file("./day_9/day_9.in");
 
-    println!("result pt1: {}", pt1(lines.clone()));
+    println!("result pt1: {}", pt1_pt2(lines.clone(), 2));
+    println!("result pt2: {}", pt1_pt2(lines.clone(), 10));
 }
 
 #[cfg(test)]
@@ -113,7 +123,7 @@ mod tests {
             "R 2".to_string(),
         ];
 
-        let result_pt1 = pt1(lines.clone());
+        let result_pt1 = pt1_pt2(lines.clone());
         println!("{:?}", result_pt1);
         assert_eq!(13, result_pt1);
     }

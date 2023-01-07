@@ -123,7 +123,7 @@ mod tests {
             "R 2".to_string(),
         ];
 
-        let result_pt1 = pt1_pt2(lines.clone());
+        let result_pt1 = pt1_pt2(lines.clone(), 2);
         println!("{:?}", result_pt1);
         assert_eq!(13, result_pt1);
     }

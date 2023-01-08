@@ -108,7 +108,7 @@ mod tests {
 
     #[test]
     fn test_main() {
-        let lines = lines_from_file("./example_in.txt");
+        let lines = lines_from_file("./example.txt");
 
         let result_pt1 = pt1(lines.clone());
         println!("{:?}", result_pt1);
@@ -117,7 +117,7 @@ mod tests {
 
     #[test]
     fn test_pt2() {
-        let lines = lines_from_file("./example_in.txt");
+        let lines = lines_from_file("./example.txt");
 
         pt2(lines.clone())
     }

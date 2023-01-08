@@ -45,10 +45,61 @@ fn pt1(lines: Vec<String>) -> i32 {
     signals.values().sum()
 }
 
+fn draw_pixel(cycle: i32, x: i32) -> char {
+    let sprite = x - 1..=x + 1;
+    if sprite.contains(&cycle) {
+        '#'
+    } else {
+        '.'
+    }
+}
+
+fn pt2(lines: Vec<String>) {
+    let mut x = 1;
+    let mut cycle = 0;
+    let mut crt_lines: Vec<String> = Vec::new();
+    let mut crt_line_current = 0;
+
+    crt_lines.push(String::new());
+
+    for line in lines {
+        let instruction = parse_instructions(line);
+
+        if instruction.0.contains("addx") {
+            for cycle_run in 0..2 {
+                crt_lines[crt_line_current].push(draw_pixel(cycle, x));
+                cycle += 1;
+                if cycle_run == 1 {
+                    x += instruction.1;
+                }
+                if crt_lines[crt_line_current].len() == 40 {
+                    cycle = 0;
+                    crt_line_current += 1;
+                    crt_lines.push(String::new());
+                }
+            }
+        } else if instruction.0.contains("noop") {
+            crt_lines[crt_line_current].push(draw_pixel(cycle, x));
+            cycle += 1;
+            if crt_lines[crt_line_current].len() == 40 {
+                cycle = 0;
+                crt_line_current += 1;
+                crt_lines.push(String::new());
+            }
+        }
+    }
+
+    for crt_line in crt_lines {
+        println!("{}", crt_line)
+    }
+}
+
 fn main() {
     let lines = lines_from_file("./day_10/input.txt");
 
     println!("result pt1: {}", pt1(lines.clone()));
+    println!("result pt2:");
+    pt2(lines);
 }
 
 #[cfg(test)]
@@ -62,6 +113,13 @@ mod tests {
         let result_pt1 = pt1(lines.clone());
         println!("{:?}", result_pt1);
         assert_eq!(13140, result_pt1);
+    }
+
+    #[test]
+    fn test_pt2() {
+        let lines = lines_from_file("./example_in.txt");
+
+        pt2(lines.clone())
     }
 
     #[test]

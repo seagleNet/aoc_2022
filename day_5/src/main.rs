@@ -115,7 +115,7 @@ fn pt2(lines: Vec<String>) -> String {
 }
 
 fn main() {
-    let lines = lines_from_file("./day_5/day_5.in");
+    let lines = lines_from_file("./day_5/input.txt");
 
     println!("result pt1: {}", pt1(lines.clone()));
 

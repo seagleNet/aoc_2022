@@ -183,7 +183,7 @@ fn pt2(lines: Vec<String>, cols: Vec<String>) -> i32 {
 }
 
 fn main() {
-    let lines = lines_from_file("./day_8/day_8.in");
+    let lines = lines_from_file("./day_8/input.txt");
     let cols = parse_cols(&lines);
 
     println!("result pt1: {}", pt1(lines.clone(), cols.clone()));

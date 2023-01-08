@@ -100,7 +100,7 @@ fn pt1_pt2(lines: Vec<String>, nr_of_knots: i32) -> i32 {
 }
 
 fn main() {
-    let lines = lines_from_file("./day_9/day_9.in");
+    let lines = lines_from_file("./day_9/input.txt");
 
     println!("result pt1: {}", pt1_pt2(lines.clone(), 2));
     println!("result pt2: {}", pt1_pt2(lines.clone(), 10));

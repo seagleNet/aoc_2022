@@ -40,7 +40,7 @@ fn compare_ranges_pt2(left: Vec<i32>, right: Vec<i32>) -> i32 {
 }
 
 fn main() {
-    let pairs = lines_from_file("./day_4/day_4.in");
+    let pairs = lines_from_file("./day_4/input.txt");
 
     let result = pairs
         .clone()

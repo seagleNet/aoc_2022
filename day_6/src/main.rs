@@ -52,7 +52,7 @@ fn pt2(lines: Vec<String>) -> i32 {
 }
 
 fn main() {
-    let lines = lines_from_file("./day_6/day_6.in");
+    let lines = lines_from_file("./day_6/input.txt");
 
     println!("result pt1: {}", pt1(lines.clone()));
     println!("result pt2: {}", pt2(lines.clone()));

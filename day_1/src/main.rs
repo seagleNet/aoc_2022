@@ -1,7 +1,7 @@
 use file_utils::lines_from_file;
 
 fn main() {
-    let cal_in = lines_from_file("./day_1/day_1.in");
+    let cal_in = lines_from_file("./day_1/input.txt");
     let mut cal_per_elf: Vec<i32> = Vec::new();
     let mut cal_current: i32 = 0;
     let mut cal_top_three: i32 = 0;

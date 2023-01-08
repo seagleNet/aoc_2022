@@ -68,7 +68,7 @@ fn decide_pick<'a>(elf_pick: &str, player_strategy: &str) -> &'a str {
 }
 
 fn main() {
-    let strategies = lines_from_file("./day_2/day_2.in");
+    let strategies = lines_from_file("./day_2/input.txt");
     let mut player_score: i32 = 0;
 
     for play in strategies {
@@ -85,7 +85,7 @@ fn main() {
 
     println!("Player score pt1: {}", player_score);
 
-    let strategies_pt2 = lines_from_file("./day_2/day_2.in");
+    let strategies_pt2 = lines_from_file("./day_2/input.txt");
     let mut player_score_pt2: i32 = 0;
 
     for play in strategies_pt2 {

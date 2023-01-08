@@ -49,7 +49,7 @@ fn map_to_priority(item: char) -> u8 {
 }
 
 fn main() {
-    let rucksacks = lines_from_file("./day_3/day_3.in");
+    let rucksacks = lines_from_file("./day_3/input.txt");
     let mut prio_total: i32 = 0;
     let mut prio_total_pt2: i32 = 0;
 

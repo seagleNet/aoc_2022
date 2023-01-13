@@ -10,10 +10,10 @@ struct Monkey {
     test_divisible: i32,
     true_dest: i32,
     false_dest: i32,
+    activity_count: i32,
 }
 
-fn parse_input(lines: Vec<String>, monkey_id: &i32) -> Monkey {
-    let mut monkey_title = String::from("Monkey ");
+fn parse_input(lines: &Vec<String>, monkey_id: &i32) -> Monkey {
     let mut input_items = Vec::new();
     let mut input_operation = ('x'.to_string(), "num".to_string());
     let mut input_test_divisible = 0;
@@ -24,12 +24,9 @@ fn parse_input(lines: Vec<String>, monkey_id: &i32) -> Monkey {
             Regex::new(r"^(?:  )*(?<key>[a-zA-Z0-1 ]+): ?(?<value>.*)$").unwrap();
     }
 
-    monkey_title.push_str(&monkey_id.to_string());
-
     for line in lines {
         if let Some(captures) = RE.captures(line.as_str()) {
             match &captures["key"] {
-                x if x.contains("Monkey") => (),
                 "Starting items" => {
                     input_items = captures["value"]
                         .split(", ")
@@ -53,7 +50,7 @@ fn parse_input(lines: Vec<String>, monkey_id: &i32) -> Monkey {
                     let input: Vec<&str> = captures["value"].split_whitespace().collect();
                     input_false_dest = input[3].parse::<i32>().unwrap();
                 }
-                _ => panic!(),
+                _ => (),
             }
         }
     }
@@ -65,6 +62,7 @@ fn parse_input(lines: Vec<String>, monkey_id: &i32) -> Monkey {
         test_divisible: input_test_divisible,
         true_dest: input_true_dest,
         false_dest: input_false_dest,
+        activity_count: 0,
     }
 }
 
@@ -75,7 +73,7 @@ fn pt1(lines: Vec<String>) -> i32 {
     for line in lines {
         monkey_file.push(line.clone());
         if line.is_empty() {
-            parse_input(monkey_file, &monkey_id);
+            let monkey = parse_input(monkey_file, &monkey_id);
             monkey_file = Vec::new();
             monkey_id += 1;
         }

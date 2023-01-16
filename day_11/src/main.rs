@@ -3,11 +3,12 @@ use lazy_static::lazy_static;
 use regex::Regex;
 use std::collections::HashMap;
 
+#[derive(Debug)]
 struct Monkey {
     id: i32,
-    items: Vec<i32>,
-    operation: (String, String),
-    test_divisible: i32,
+    items: Vec<f32>,
+    operation: (char, String),
+    test_divisible: f32,
     true_dest: i32,
     false_dest: i32,
     activity_count: i32,
@@ -15,13 +16,14 @@ struct Monkey {
 
 fn parse_input(lines: &Vec<String>, monkey_id: &i32) -> Monkey {
     let mut input_items = Vec::new();
-    let mut input_operation = ('x'.to_string(), "num".to_string());
-    let mut input_test_divisible = 0;
+    let mut input_operation = ('x', "num".to_string());
+    let mut input_test_divisible = 0.0;
     let mut input_true_dest = 0;
     let mut input_false_dest = 0;
+
     lazy_static! {
         static ref RE: Regex =
-            Regex::new(r"^(?:  )*(?<key>[a-zA-Z0-1 ]+): ?(?<value>.*)$").unwrap();
+            Regex::new(r"^(?:  )*(?P<key>[a-zA-Z0-1 ]+): ?(?P<value>.*)$").unwrap();
     }
 
     for line in lines {
@@ -30,17 +32,16 @@ fn parse_input(lines: &Vec<String>, monkey_id: &i32) -> Monkey {
                 "Starting items" => {
                     input_items = captures["value"]
                         .split(", ")
-                        .map(|f| f.parse::<i32>().unwrap())
+                        .map(|f| f.parse::<f32>().unwrap())
                         .collect();
                 }
                 "Operation" => {
-                    let input: Vec<&str> = captures["value"]
-                        .split_whitespace().collect();
-                    input_operation = (input[3].to_string(), input[4].to_string())
+                    let input: Vec<&str> = captures["value"].split_whitespace().collect();
+                    input_operation = (input[3].parse::<char>().unwrap(), input[4].to_string());
                 }
                 "Test" => {
                     let input: Vec<&str> = captures["value"].split_whitespace().collect();
-                    input_test_divisible = input[2].parse::<i32>().unwrap();
+                    input_test_divisible = input[2].parse::<f32>().unwrap();
                 }
                 "If true" => {
                     let input: Vec<&str> = captures["value"].split_whitespace().collect();
@@ -66,26 +67,82 @@ fn parse_input(lines: &Vec<String>, monkey_id: &i32) -> Monkey {
     }
 }
 
-fn pt1(lines: Vec<String>) -> i32 {
+fn inspect_item(item: &f32, operation: &(char, String)) -> f32 {
+    let op = operation.0;
+    let by_in = operation.1.clone();
+    let by = if by_in == "old".to_string() {
+        *item
+    } else if by_in.parse::<f32>().is_ok() {
+        by_in.parse::<f32>().unwrap()
+    } else {
+        panic!("cannot do maths with {:?}", by_in)
+    };
+
+    let worry = match op {
+        '*' => item * by,
+        '+' => item + by,
+        _ => panic!("no operation for {:?}", op),
+    };
+
+    (worry / 3.0).floor()
+}
+
+fn divisible(worry_level: &f32, test: &f32) -> bool {
+    if worry_level % test == 0.0 {
+        true
+    } else {
+        false
+    }
+}
+
+fn monkey_turn(monkey_stats: &Monkey) -> Vec<(i32, f32)> {
+    let mut actions: Vec<(i32, f32)> = Vec::new();
+
+    for item in &monkey_stats.items {
+        let worry_level = inspect_item(&item, &monkey_stats.operation);
+        let destination = if divisible(&worry_level, &monkey_stats.test_divisible) {
+            monkey_stats.true_dest
+        } else {
+            monkey_stats.false_dest
+        };
+
+        actions.push((destination, worry_level));
+    }
+
+    actions
+}
+
+fn pt1(lines: Vec<String>, rounds: i32) -> i32 {
     let mut monkey_id = 0;
     let mut monkey_file: Vec<String> = Vec::new();
-    let mut monkies: HashMap<i32, Monkey> = HashMap::new();
+    let mut monkey_list: HashMap<i32, Monkey> = HashMap::new();
 
     for line in lines {
         monkey_file.push(line.clone());
         if line.is_empty() {
-            monkies.insert(monkey_id, parse_input(&monkey_file, &monkey_id));
+            monkey_list.insert(monkey_id, parse_input(&monkey_file, &monkey_id));
             monkey_file = Vec::new();
             monkey_id += 1;
         }
     }
+
+    for _ in 0..rounds {
+        for monkey in &monkey_list {
+            for action in monkey_turn(monkey.1) {
+                monkey_list
+                    .entry(action.0)
+                    .and_modify(|v| v.items.push(action.1));
+            }
+        }
+    }
+
     return 10605;
 }
 
 fn main() {
     let lines = lines_from_file("./day_11/input.txt");
 
-    println!("result pt1: {}", pt1(lines.clone()));
+    println!("result pt1: {}", pt1(lines.clone(), 20));
 }
 
 #[cfg(test)]
@@ -96,8 +153,27 @@ mod tests {
     fn test_main() {
         let lines = lines_from_file("./example.txt");
 
-        let result_pt1 = pt1(lines.clone());
+        let result_pt1 = pt1(lines.clone(), 20);
         println!("{:?}", result_pt1);
         assert_eq!(10605, result_pt1);
+    }
+
+    #[test]
+    fn test_parse_input() {
+        let lines = lines_from_file("./example.txt");
+        let mut monkey_id = 0;
+        let mut monkey_file: Vec<String> = Vec::new();
+        let mut monkies: HashMap<i32, Monkey> = HashMap::new();
+
+        for line in lines {
+            monkey_file.push(line.clone());
+            if line.is_empty() {
+                monkies.insert(monkey_id, parse_input(&monkey_file, &monkey_id));
+                monkey_file = Vec::new();
+                monkey_id += 1;
+            }
+        }
+
+        println!("{:?}", monkies);
     }
 }

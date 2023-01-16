@@ -69,11 +69,12 @@ fn parse_input(lines: &Vec<String>, monkey_id: &i32) -> Monkey {
 fn pt1(lines: Vec<String>) -> i32 {
     let mut monkey_id = 0;
     let mut monkey_file: Vec<String> = Vec::new();
+    let mut monkies: HashMap<i32, Monkey> = HashMap::new();
 
     for line in lines {
         monkey_file.push(line.clone());
         if line.is_empty() {
-            let monkey = parse_input(monkey_file, &monkey_id);
+            monkies.insert(monkey_id, parse_input(&monkey_file, &monkey_id));
             monkey_file = Vec::new();
             monkey_id += 1;
         }

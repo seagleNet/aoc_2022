@@ -127,12 +127,15 @@ fn pt1(lines: Vec<String>, rounds: i32) -> i32 {
     }
 
     for _ in 0..rounds {
-        for monkey in &monkey_list {
-            for action in monkey_turn(monkey.1) {
+        for monkey in monkey_list.keys().cloned().collect::<Vec<i32>>() {
+            for action in monkey_turn(monkey_list.get(&monkey).unwrap()) {
                 monkey_list
                     .entry(action.0)
                     .and_modify(|v| v.items.push(action.1));
             }
+            monkey_list
+                .entry(monkey)
+                .and_modify(|v| v.items = Vec::new());
         }
     }
 

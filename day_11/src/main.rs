@@ -1,7 +1,7 @@
 use file_utils::lines_from_file;
 use lazy_static::lazy_static;
 use regex::Regex;
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 #[derive(Debug)]
 struct Monkey {
@@ -115,7 +115,7 @@ fn monkey_turn(monkey_stats: &Monkey) -> Vec<(i32, f32)> {
 fn pt1(lines: Vec<String>, rounds: i32) -> i32 {
     let mut monkey_id = 0;
     let mut monkey_file: Vec<String> = Vec::new();
-    let mut monkey_list: HashMap<i32, Monkey> = HashMap::new();
+    let mut monkey_list: BTreeMap<i32, Monkey> = BTreeMap::new();
 
     for line in lines {
         monkey_file.push(line.clone());
@@ -125,25 +125,34 @@ fn pt1(lines: Vec<String>, rounds: i32) -> i32 {
             monkey_id += 1;
         }
     }
+    monkey_list.insert(monkey_id, parse_input(&monkey_file, &monkey_id));
 
     for _ in 0..rounds {
         for monkey in monkey_list.keys().cloned().collect::<Vec<i32>>() {
-            for action in monkey_turn(monkey_list.get(&monkey).unwrap()) {
+            let actions = monkey_turn(monkey_list.get(&monkey).unwrap());
+
+            monkey_list
+                .entry(monkey)
+                .and_modify(|v| v.activity_count += actions.len() as i32);
+
+            for action in actions {
                 monkey_list
                     .entry(action.0)
                     .and_modify(|v| v.items.push(action.1));
             }
+
             monkey_list
                 .entry(monkey)
                 .and_modify(|v| v.items = Vec::new());
         }
     }
 
+    println!("{:?}", monkey_list);
     return 10605;
 }
 
 fn main() {
-    let lines = lines_from_file("./day_11/input.txt");
+    let lines = lines_from_file("./day_11/example.txt");
 
     println!("result pt1: {}", pt1(lines.clone(), 20));
 }
@@ -166,7 +175,7 @@ mod tests {
         let lines = lines_from_file("./example.txt");
         let mut monkey_id = 0;
         let mut monkey_file: Vec<String> = Vec::new();
-        let mut monkies: HashMap<i32, Monkey> = HashMap::new();
+        let mut monkies: BTreeMap<i32, Monkey> = BTreeMap::new();
 
         for line in lines {
             monkey_file.push(line.clone());
@@ -178,5 +187,20 @@ mod tests {
         }
 
         println!("{:?}", monkies);
+    }
+
+    #[test]
+    fn test_monkey_turn() {
+        let monkey = Monkey {
+            id: 0,
+            items: vec![79.0, 98.0],
+            operation: ('*', "19".to_string()),
+            test_divisible: 23.0,
+            true_dest: 2,
+            false_dest: 3,
+            activity_count: 0,
+        };
+
+        assert_eq!(vec![(3, 500.0), (3, 620.0)], monkey_turn(&monkey));
     }
 }

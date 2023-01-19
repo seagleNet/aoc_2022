@@ -1,11 +1,10 @@
 use file_utils::lines_from_file;
 use lazy_static::lazy_static;
 use regex::Regex;
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(Debug)]
 struct Monkey {
-    id: i32,
     items: Vec<f32>,
     operation: (char, String),
     test_divisible: f32,
@@ -14,7 +13,7 @@ struct Monkey {
     activity_count: i32,
 }
 
-fn parse_input(lines: &Vec<String>, monkey_id: &i32) -> Monkey {
+fn parse_input(lines: &Vec<String>) -> Monkey {
     let mut input_items = Vec::new();
     let mut input_operation = ('x', "num".to_string());
     let mut input_test_divisible = 0.0;
@@ -57,7 +56,6 @@ fn parse_input(lines: &Vec<String>, monkey_id: &i32) -> Monkey {
     }
 
     Monkey {
-        id: *monkey_id,
         items: input_items,
         operation: input_operation,
         test_divisible: input_test_divisible,
@@ -120,12 +118,12 @@ fn pt1(lines: Vec<String>, rounds: i32) -> i32 {
     for line in lines {
         monkey_file.push(line.clone());
         if line.is_empty() {
-            monkey_list.insert(monkey_id, parse_input(&monkey_file, &monkey_id));
+            monkey_list.insert(monkey_id, parse_input(&monkey_file));
             monkey_file = Vec::new();
             monkey_id += 1;
         }
     }
-    monkey_list.insert(monkey_id, parse_input(&monkey_file, &monkey_id));
+    monkey_list.insert(monkey_id, parse_input(&monkey_file));
 
     for _ in 0..rounds {
         for monkey in monkey_list.keys().cloned().collect::<Vec<i32>>() {
@@ -147,12 +145,22 @@ fn pt1(lines: Vec<String>, rounds: i32) -> i32 {
         }
     }
 
-    println!("{:?}", monkey_list);
-    return 10605;
+    let activity_counts: BTreeSet<i32> = monkey_list
+        .values()
+        .into_iter()
+        .map(|f| f.activity_count)
+        .collect();
+
+    activity_counts
+        .into_iter()
+        .rev()
+        .take(2)
+        .into_iter()
+        .fold(1, |acc, x| acc * x)
 }
 
 fn main() {
-    let lines = lines_from_file("./day_11/example.txt");
+    let lines = lines_from_file("./day_11/input.txt");
 
     println!("result pt1: {}", pt1(lines.clone(), 20));
 }
@@ -192,7 +200,6 @@ mod tests {
     #[test]
     fn test_monkey_turn() {
         let monkey = Monkey {
-            id: 0,
             items: vec![79.0, 98.0],
             operation: ('*', "19".to_string()),
             test_divisible: 23.0,

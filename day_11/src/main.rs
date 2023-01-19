@@ -188,7 +188,7 @@ mod tests {
         for line in lines {
             monkey_file.push(line.clone());
             if line.is_empty() {
-                monkies.insert(monkey_id, parse_input(&monkey_file, &monkey_id));
+                monkies.insert(monkey_id, parse_input(&monkey_file));
                 monkey_file = Vec::new();
                 monkey_id += 1;
             }

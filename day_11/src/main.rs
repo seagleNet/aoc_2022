@@ -5,9 +5,9 @@ use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(Debug)]
 struct Monkey {
-    items: Vec<f32>,
+    items: Vec<i64>,
     operation: (char, String),
-    test_divisible: f32,
+    test_divisible: i32,
     true_dest: i32,
     false_dest: i32,
     activity_count: i32,
@@ -16,7 +16,7 @@ struct Monkey {
 fn parse_input(lines: &Vec<String>) -> Monkey {
     let mut input_items = Vec::new();
     let mut input_operation = ('x', "num".to_string());
-    let mut input_test_divisible = 0.0;
+    let mut input_test_divisible = 0;
     let mut input_true_dest = 0;
     let mut input_false_dest = 0;
 
@@ -31,7 +31,7 @@ fn parse_input(lines: &Vec<String>) -> Monkey {
                 "Starting items" => {
                     input_items = captures["value"]
                         .split(", ")
-                        .map(|f| f.parse::<f32>().unwrap())
+                        .map(|f| f.parse::<i64>().unwrap())
                         .collect();
                 }
                 "Operation" => {
@@ -40,7 +40,7 @@ fn parse_input(lines: &Vec<String>) -> Monkey {
                 }
                 "Test" => {
                     let input: Vec<&str> = captures["value"].split_whitespace().collect();
-                    input_test_divisible = input[2].parse::<f32>().unwrap();
+                    input_test_divisible = input[2].parse::<i32>().unwrap();
                 }
                 "If true" => {
                     let input: Vec<&str> = captures["value"].split_whitespace().collect();
@@ -65,13 +65,13 @@ fn parse_input(lines: &Vec<String>) -> Monkey {
     }
 }
 
-fn inspect_item(item: &f32, operation: &(char, String), relief: &f32) -> f32 {
+fn inspect_item(item: &i64, operation: &(char, String), relief: &bool, modulo: &i64) -> i64 {
     let op = operation.0;
     let by_in = operation.1.clone();
     let by = if by_in == "old".to_string() {
         *item
-    } else if by_in.parse::<f32>().is_ok() {
-        by_in.parse::<f32>().unwrap()
+    } else if by_in.parse::<i64>().is_ok() {
+        by_in.parse::<i64>().unwrap()
     } else {
         panic!("cannot do maths with {:?}", by_in)
     };
@@ -82,26 +82,26 @@ fn inspect_item(item: &f32, operation: &(char, String), relief: &f32) -> f32 {
         _ => panic!("no operation for {:?}", op),
     };
 
-    if relief != &0.0 {
-        (worry / relief).floor()
+    if relief == &true {
+        worry.div_euclid(3)
     } else {
-        worry
+        worry % modulo
     }
 }
 
-fn divisible(worry_level: &f32, test: &f32) -> bool {
-    if worry_level % test == 0.0 {
+fn divisible(worry_level: &i64, test: &i32) -> bool {
+    if worry_level % *test as i64 == 0 {
         true
     } else {
         false
     }
 }
 
-fn monkey_turn(monkey_stats: &Monkey, relief: &f32) -> Vec<(i32, f32)> {
-    let mut actions: Vec<(i32, f32)> = Vec::new();
+fn monkey_turn(monkey_stats: &Monkey, relief: &bool, modulo: &i64) -> Vec<(i32, i64)> {
+    let mut actions: Vec<(i32, i64)> = Vec::new();
 
     for item in &monkey_stats.items {
-        let worry_level = inspect_item(&item, &monkey_stats.operation, &relief);
+        let worry_level = inspect_item(&item, &monkey_stats.operation, &relief, &modulo);
         let destination = if divisible(&worry_level, &monkey_stats.test_divisible) {
             monkey_stats.true_dest
         } else {
@@ -114,7 +114,7 @@ fn monkey_turn(monkey_stats: &Monkey, relief: &f32) -> Vec<(i32, f32)> {
     actions
 }
 
-fn pt1_pt2(lines: Vec<String>, rounds: i32, relief: f32) -> i64 {
+fn pt1_pt2(lines: Vec<String>, rounds: i32, relief: bool) -> i64 {
     let mut monkey_id = 0;
     let mut monkey_file: Vec<String> = Vec::new();
     let mut monkey_list: BTreeMap<i32, Monkey> = BTreeMap::new();
@@ -129,9 +129,17 @@ fn pt1_pt2(lines: Vec<String>, rounds: i32, relief: f32) -> i64 {
     }
     monkey_list.insert(monkey_id, parse_input(&monkey_file));
 
-    for _ in 0..rounds {
+    let modulo: i64 = monkey_list
+        .values()
+        .into_iter()
+        .map(|f| f.test_divisible as i64)
+        .fold(1, |acc, x| acc * x);
+
+    // println!("Modulo: {:?}", modulo);
+
+    for _round in 0..rounds {
         for monkey in monkey_list.keys().cloned().collect::<Vec<i32>>() {
-            let actions = monkey_turn(monkey_list.get(&monkey).unwrap(), &relief);
+            let actions = monkey_turn(monkey_list.get(&monkey).unwrap(), &relief, &modulo);
 
             monkey_list
                 .entry(monkey)
@@ -147,6 +155,12 @@ fn pt1_pt2(lines: Vec<String>, rounds: i32, relief: f32) -> i64 {
                 .entry(monkey)
                 .and_modify(|v| v.items = Vec::new());
         }
+        // println!("# Round: {:?}", _round + 1);
+        // println!("{:?}", monkey_list);
+    }
+
+    for monkey in &monkey_list {
+        println!("Monkey {:?}: {:?}", monkey.0, monkey.1.activity_count);
     }
 
     let activity_counts: BTreeSet<i64> = monkey_list
@@ -165,8 +179,8 @@ fn pt1_pt2(lines: Vec<String>, rounds: i32, relief: f32) -> i64 {
 fn main() {
     let lines = lines_from_file("./day_11/input.txt");
 
-    println!("result pt1: {}", pt1_pt2(lines.clone(), 20, 3.0));
-    println!("result pt1: {}", pt1_pt2(lines.clone(), 10000, 0.0));
+    println!("result pt1: {}", pt1_pt2(lines.clone(), 20, true));
+    println!("result pt2: {}", pt1_pt2(lines.clone(), 10000, false));
 }
 
 #[cfg(test)]
@@ -177,13 +191,13 @@ mod tests {
     fn test_main() {
         let lines = lines_from_file("./example.txt");
 
-        let result_pt1 = pt1_pt2(lines.clone(), 20, 3.0);
+        let result_pt1 = pt1_pt2(lines.clone(), 20, true);
         assert_eq!(10605, result_pt1);
-        let result_pt2_1 = pt1_pt2(lines.clone(), 1, 0.0);
+        let result_pt2_1 = pt1_pt2(lines.clone(), 1, false);
         assert_eq!(24, result_pt2_1);
-        let result_pt2_2 = pt1_pt2(lines.clone(), 20, 0.0);
+        let result_pt2_2 = pt1_pt2(lines.clone(), 20, false);
         assert_eq!(10197, result_pt2_2);
-        let result_pt2_3 = pt1_pt2(lines.clone(), 10000, 0.0);
+        let result_pt2_3 = pt1_pt2(lines.clone(), 10000, false);
         assert_eq!(2713310158, result_pt2_3);
     }
 
@@ -209,14 +223,14 @@ mod tests {
     #[test]
     fn test_monkey_turn() {
         let monkey = Monkey {
-            items: vec![79.0, 98.0],
+            items: vec![79, 98],
             operation: ('*', "19".to_string()),
-            test_divisible: 23.0,
+            test_divisible: 23,
             true_dest: 2,
             false_dest: 3,
             activity_count: 0,
         };
 
-        assert_eq!(vec![(3, 500.0), (3, 620.0)], monkey_turn(&monkey, &3.0));
+        assert_eq!(vec![(3, 500), (3, 620)], monkey_turn(&monkey, &true, &1));
     }
 }

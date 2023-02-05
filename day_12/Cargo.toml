@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 file_utils = { path = "../file_utils" }
+pathfinding = "4.2.1"

@@ -151,38 +151,3 @@ mod tests {
         assert_eq!(false, is_traversable('a', 'z'));
     }
 }
-
-// // attempt at Depth-first search
-// const INF: i32 = std::i32::MAX;
-
-// fn shortest_path(grid: &Vec<Vec<char>>, start: (usize, usize), end: (usize, usize)) -> i32 {
-//     let mut dist = vec![vec![INF; grid[0].len()]; grid.len()];
-//     let mut dfs = vec![start];
-//     dist[start.0][start.1] = 0;
-
-//     while let Some(curr) = dfs.pop() {
-//         for dx in &[-1, 0, 1] {
-//             for dy in &[-1, 0, 1] {
-//                 let x = curr.0 as i32 + dx;
-//                 let y = curr.1 as i32 + dy;
-//                 if x >= 0 && x < grid.len() as i32 && y >= 0 && y < grid[0].len() as i32 {
-//                     let next = (x as usize, y as usize);
-//                     if is_traversable(grid[curr.0][curr.1], grid[next.0][next.1])
-//                         && dist[next.0][next.1] == INF
-//                     {
-//                         dist[next.0][next.1] = dist[curr.0][curr.1] + 1;
-//                         if next == end {
-//                             return dist[end.0][end.1];
-//                         }
-//                         for d in &dist {
-//                             println!("{:?}", d);
-//                         }
-//                         dfs.push(next);
-//                     }
-//                 }
-//             }
-//         }
-//     }
-
-//     return INF;
-// }

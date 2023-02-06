@@ -17,8 +17,10 @@ fn is_traversable(curr: char, next: char) -> bool {
     let height_diff = get_height(next) - get_height(curr);
 
     if (std::i8::MIN..=1).contains(&height_diff) {
+        println!("{} --> {}", curr, next);
         return true;
     } else {
+        println!("{} !-> {}", curr, next);
         return false;
     }
 }
@@ -32,10 +34,10 @@ fn coordinates(lines: &Vec<Vec<char>>, query: char) -> (i32, i32) {
             if ch == &query {
                 return (x, y);
             }
-            x += 1;
+            y += 1;
         }
-        x = 0;
-        y += 1;
+        y = 0;
+        x += 1;
     }
     panic!("could not find {}", query)
 }
@@ -48,24 +50,24 @@ impl Pos {
         (self.0.abs_diff(other.0) + self.1.abs_diff(other.1)) as u32
     }
 
-    fn successors(&self, curr: &Pos, grid: &Vec<Vec<char>>) -> Vec<(Pos, u32)> {
+    fn successors(&self, grid: &Vec<Vec<char>>) -> Vec<(Pos, u32)> {
         let &Pos(x, y) = self;
         let mut result: Vec<(Pos, u32)> = Vec::new();
 
-        println!("{:?}", &Pos(x, y));
+        println!("{:?}", self);
 
         for dx in [-1, 0, 1] {
             for dy in [-1, 0, 1] {
                 if (dx == 0 && dy != 0) || (dx != 0 && dy == 0) {
-                    let next_x = curr.0 as i32 + dx;
-                    let next_y = curr.1 as i32 + dy;
+                    let next_x = self.0 as i32 + dx;
+                    let next_y = self.1 as i32 + dy;
                     if next_x >= 0
                         && next_x < grid.len() as i32
                         && next_y >= 0
                         && next_y < grid[0].len() as i32
                     {
-                        let curr_h = grid[curr.0 as usize][curr.1 as usize];
-                        let next_h = grid[(curr.0 + dx) as usize][(curr.1 + dy) as usize];
+                        let curr_h = grid[self.0 as usize][self.1 as usize];
+                        let next_h = grid[next_x as usize][next_y as usize];
                         if is_traversable(curr_h, next_h) {
                             result.push((Pos(x + dx, y + dy), 1));
                         }
@@ -74,6 +76,7 @@ impl Pos {
             }
         }
 
+        println!("{:?}", result);
         return result;
     }
 }
@@ -87,15 +90,15 @@ fn pt1(grid: Vec<Vec<char>>) -> u32 {
 
     let result = astar(
         &Pos(start.0, start.1),
-        |p| p.successors(p, &grid),
-        |p| p.distance(&goal) / 3,
+        |p| p.successors(&grid),
+        |p| p.distance(&goal),
         |p| *p == goal,
     );
     result.expect("no path found").1
 }
 
 fn main() {
-    let grid: Vec<Vec<char>> = lines_from_file("./day_11/input.txt")
+    let grid: Vec<Vec<char>> = lines_from_file("./day_12/input.txt")
         .into_iter()
         .map(|s| s.chars().collect())
         .collect();
@@ -128,6 +131,14 @@ mod tests {
 
         assert_eq!((0, 0), coordinates(&grid, 'S'));
         assert_eq!((5, 2), coordinates(&grid, 'E'));
+    }
+
+    #[test]
+    fn test_get_height() {
+        assert_eq!(1, get_height('S'));
+        assert_eq!(1, get_height('a'));
+        assert_eq!(26, get_height('E'));
+        assert_eq!(26, get_height('z'));
     }
 
     #[test]

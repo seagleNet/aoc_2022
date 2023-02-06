@@ -1,5 +1,7 @@
 use file_utils::lines_from_file;
 use pathfinding::prelude::astar;
+use pathfinding::prelude::dijkstra;
+use std::time::Instant;
 
 fn get_height(char: char) -> i8 {
     if char.is_ascii_lowercase() {
@@ -76,6 +78,46 @@ impl Pos {
     }
 }
 
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+struct PosD(i32, i32);
+
+impl PosD {
+    fn success(&self, grid: &Vec<Vec<char>>, goal_h: char) -> bool {
+        if grid[self.0 as usize][self.1 as usize] == goal_h {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    fn successors(&self, grid: &Vec<Vec<char>>) -> Vec<(PosD, u32)> {
+        let &PosD(x, y) = self;
+        let mut result: Vec<(PosD, u32)> = Vec::new();
+
+        for dx in [-1, 0, 1] {
+            for dy in [-1, 0, 1] {
+                if (dx == 0 && dy != 0) || (dx != 0 && dy == 0) {
+                    let next_x = self.0 as i32 + dx;
+                    let next_y = self.1 as i32 + dy;
+                    if next_x >= 0
+                        && next_x < grid.len() as i32
+                        && next_y >= 0
+                        && next_y < grid[0].len() as i32
+                    {
+                        let curr_h = grid[self.0 as usize][self.1 as usize];
+                        let next_h = grid[next_x as usize][next_y as usize];
+                        if is_traversable(next_h, curr_h) {
+                            result.push((PosD(x + dx, y + dy), 1));
+                        }
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+}
+
 fn pt1(grid: Vec<Vec<char>>) -> u32 {
     let start = coordinates(&grid, 'S');
     let end = coordinates(&grid, 'E');
@@ -90,7 +132,7 @@ fn pt1(grid: Vec<Vec<char>>) -> u32 {
     result.expect("no path found").1
 }
 
-fn pt2(grid: Vec<Vec<char>>) -> u32 {
+fn pt2_1(grid: Vec<Vec<char>>) -> u32 {
     let mut start_candidates: Vec<Pos> = Vec::new();
     let end = coordinates(&grid, 'E');
     let goal: Pos = Pos(end.0, end.1);
@@ -116,7 +158,20 @@ fn pt2(grid: Vec<Vec<char>>) -> u32 {
     }
 
     let result = distances.iter().min();
-    *result.expect("no result")
+    *result.expect("no path found")
+}
+
+fn pt2_2(grid: Vec<Vec<char>>) -> u32 {
+    let end = coordinates(&grid, 'E');
+    let goal_h = 'a';
+
+    let result = dijkstra(
+        &PosD(end.0, end.1),
+        |p| p.successors(&grid),
+        |p| p.success(&grid, goal_h),
+    );
+
+    result.expect("no path found").1
 }
 
 fn main() {
@@ -125,8 +180,17 @@ fn main() {
         .map(|s| s.chars().collect())
         .collect();
 
+    let start = Instant::now();
     println!("result pt1: {}", pt1(grid.clone()));
-    println!("result pt2: {}", pt2(grid.clone()));
+    println!("time: {:?}", start.elapsed());
+
+    let start = Instant::now();
+    println!("result pt2_1: {}", pt2_1(grid.clone()));
+    println!("time: {:?}", start.elapsed());
+
+    let start = Instant::now();
+    println!("result pt2_2: {}", pt2_2(grid.clone()));
+    println!("time: {:?}", start.elapsed());
 }
 
 #[cfg(test)]

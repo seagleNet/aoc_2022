@@ -17,10 +17,8 @@ fn is_traversable(curr: char, next: char) -> bool {
     let height_diff = get_height(next) - get_height(curr);
 
     if (std::i8::MIN..=1).contains(&height_diff) {
-        println!("{} --> {}", curr, next);
         return true;
     } else {
-        println!("{} !-> {}", curr, next);
         return false;
     }
 }
@@ -54,8 +52,6 @@ impl Pos {
         let &Pos(x, y) = self;
         let mut result: Vec<(Pos, u32)> = Vec::new();
 
-        println!("{:?}", self);
-
         for dx in [-1, 0, 1] {
             for dy in [-1, 0, 1] {
                 if (dx == 0 && dy != 0) || (dx != 0 && dy == 0) {
@@ -76,7 +72,6 @@ impl Pos {
             }
         }
 
-        println!("{:?}", result);
         return result;
     }
 }
@@ -85,8 +80,6 @@ fn pt1(grid: Vec<Vec<char>>) -> u32 {
     let start = coordinates(&grid, 'S');
     let end = coordinates(&grid, 'E');
     let goal: Pos = Pos(end.0, end.1);
-
-    println!("start: {:?}\nend: {:?}", start, end);
 
     let result = astar(
         &Pos(start.0, start.1),

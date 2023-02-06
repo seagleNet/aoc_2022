@@ -97,6 +97,35 @@ fn pt1(grid: Vec<Vec<char>>) -> u32 {
     result.expect("no path found").1
 }
 
+fn pt2(grid: Vec<Vec<char>>) -> u32 {
+    let mut start_candidates: Vec<Pos> = Vec::new();
+    let end = coordinates(&grid, 'E');
+    let goal: Pos = Pos(end.0, end.1);
+    let mut distances: Vec<u32> = Vec::new();
+
+    for x in grid.iter().enumerate() {
+        for y in x.1.iter().enumerate() {
+            if y.1 == &'a' {
+                start_candidates.push(Pos(x.0 as i32, y.0 as i32))
+            }
+        }
+    }
+
+    for start in start_candidates {
+        if let Some(distance) = astar(
+            &Pos(start.0, start.1),
+            |p| p.successors(&grid),
+            |p| p.distance(&goal),
+            |p| *p == goal,
+        ) {
+            distances.push(distance.1);
+        }
+    }
+
+    let result = distances.iter().min();
+    *result.expect("no result")
+}
+
 fn main() {
     let grid: Vec<Vec<char>> = lines_from_file("./day_12/input.txt")
         .into_iter()
@@ -104,6 +133,7 @@ fn main() {
         .collect();
 
     println!("result pt1: {}", pt1(grid.clone()));
+    println!("result pt2: {}", pt2(grid.clone()));
 }
 
 #[cfg(test)]
@@ -113,7 +143,7 @@ mod tests {
     #[test]
     fn test_main() {
         let grid: Vec<Vec<char>> = lines_from_file("./example.txt")
-        // let grid: Vec<Vec<char>> = lines_from_file("./day_12/example.txt")
+            // let grid: Vec<Vec<char>> = lines_from_file("./day_12/example.txt")
             .into_iter()
             .map(|s| s.chars().collect())
             .collect();

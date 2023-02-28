@@ -1,7 +1,6 @@
-use std::collections::VecDeque;
-
 use file_utils::lines_from_file;
 use serde_json::Value;
+use std::collections::VecDeque;
 
 fn parse_nested_vector(input: &Value) -> Vec<Value> {
     match input {
@@ -30,9 +29,9 @@ fn parse_lines(lines: &Vec<String>) -> Vec<(VecDeque<Value>, VecDeque<Value>)> {
     let mut pairs: Vec<(VecDeque<Value>, VecDeque<Value>)> = Vec::new();
 
     for line in lines {
-        let v: Value = serde_json::from_str(&line).unwrap();
-        if !v.is_null() {
-            pair.push(flatten_nested_vector(&v));
+        let value: Value = serde_json::from_str(&line).unwrap_or_default();
+        if !value.is_null() {
+            pair.push(flatten_nested_vector(&value));
         }
         if pair.len() == 2 {
             pairs.push((
@@ -46,8 +45,12 @@ fn parse_lines(lines: &Vec<String>) -> Vec<(VecDeque<Value>, VecDeque<Value>)> {
 }
 
 fn main() {
-    let lines: Vec<String> = lines_from_file("./day_12/input.txt");
+    let lines: Vec<String> = lines_from_file("./day_13/input.txt");
     let pairs = parse_lines(&lines);
+    for pair in pairs.iter().enumerate() {
+        println!("pair {} l: {:?}",pair.0, pair.1.0);
+        println!("pair {} r: {:?}", pair.0, pair.1.1);
+    }
 }
 
 #[cfg(test)]
@@ -56,7 +59,7 @@ mod tests {
 
     #[test]
     fn test_main() {
-        let grid: Vec<String> = lines_from_file("./example.txt");
+        let lines: Vec<String> = lines_from_file("./example.txt");
     }
 
     #[test]
@@ -72,7 +75,7 @@ mod tests {
     }
 
     fn test_parse_line(input: String) -> Vec<Value> {
-        let v: Value = serde_json::from_str(&input).unwrap();
-        flatten_nested_vector(&v)
+        let value: Value = serde_json::from_str(&input).unwrap();
+        flatten_nested_vector(&value)
     }
 }
